@@ -39,14 +39,18 @@ let state = {
 };
 
 // === УТИЛИТЫ ===
-const $ = id => document.getElementById(id);
-const fmt = n => Math.floor(n).toLocaleString();
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => Math.floor(n).toLocaleString();
 const rand = (min, max) => Math.random() * (max - min) + min;
 
-// === СОХРАНЕНИЕ / ЗАГРУЗКА ===
+// === СОХРАНЕНИЕ ===
 function save() {
   state.lastSave = Date.now();
-  try { localStorage.setItem('pug_save', JSON.stringify(state)); } catch(e) {}
+  try {
+    localStorage.setItem('pug_save', JSON.stringify(state));
+  } catch(e) {
+    console.warn('Save error:', e);
+  }
 }
 
 function load() {
@@ -59,7 +63,9 @@ function load() {
       state.slots = state.slots || { mat: null, toy1: null, toy2: null, decor1: null, decor2: null, decor3: null };
       state.stats = state.stats || { clicks: 0, earned: 0, cases: 0 };
     }
-  } catch(e) { console.warn('Load error', e); }
+  } catch(e) {
+    console.warn('Load error:', e);
+  }
 }
 
 // === РАСЧЁТЫ ===
@@ -77,7 +83,6 @@ function getClickValue() {
   const now = Date.now();
   if (state.boost.end && now > state.boost.end) {
     state.boost = { mult: 1, end: 0 };
-    save();
   }
   const tempMult = state.boost.end > now ? state.boost.mult : 1;
   const furnMult = getFurnitureMult();
@@ -86,43 +91,61 @@ function getClickValue() {
 
 // === ИНТЕРФЕЙС ===
 function updateUI() {
-  $('ui-kibble').textContent = fmt(state.kibble);
-  const currentMult = state.permMult * getFurnitureMult() * (state.boost.end > Date.now() ? state.boost.mult : 1);
-  $('ui-mult').textContent = `x${currentMult.toFixed(2)}`;
+  const kibbleEl = $('ui-kibble');
+  const multEl = $('ui-mult');
+  const boostEl = $('ui-boost');
+  const boostTimeEl = $('ui-boost-time');
   
-  const boostActive = state.boost.end > Date.now();
-  $('ui-boost').style.display = boostActive ? 'block' : 'none';
-  if (boostActive) {
-    const sec = Math.ceil((state.boost.end - Date.now()) / 1000);
-    $('ui-boost-time').textContent = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+  if (kibbleEl) kibbleEl.textContent = fmt(state.kibble);
+  if (multEl) {
+    const currentMult = state.permMult * getFurnitureMult() * (state.boost.end > Date.now() ? state.boost.mult : 1);
+    multEl.textContent = `x${currentMult.toFixed(2)}`;
+  }
+  
+  if (boostEl && boostTimeEl) {
+    const boostActive = state.boost.end > Date.now();
+    boostEl.style.display = boostActive ? 'block' : 'none';
+    if (boostActive) {
+      const sec = Math.ceil((state.boost.end - Date.now()) / 1000);
+      boostTimeEl.textContent = `${Math.floor(sec/60)}:${(sec%60).toString().padStart(2,'0')}`;
+    }
   }
   
   renderInventory();
   renderStats();
 }
 
-function showModal(id) {
-  $('overlay').style.display = 'block';
-  $(id).classList.add('open');
-  if (id === 'modal-shop') renderShop('upgrades');
+function showModal(modalId) {
+  const overlay = $('overlay');
+  const modal = $(modalId);
+  if (overlay) overlay.style.display = 'block';
+  if (modal) modal.classList.add('open');
+  if (modalId === 'modal-shop') renderShop('upgrades');
   updateUI();
 }
 
 function closeModal() {
-  $('overlay').style.display = 'none';
+  const overlay = $('overlay');
+  if (overlay) overlay.style.display = 'none';
   document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
   save();
 }
 
 // === МАГАЗИН ===
 let currentTab = 'upgrades';
+
 function renderShop(tab) {
   currentTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  const container = $('shop-content');
-  container.innerHTML = '';
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === tab);
+  });
   
+  const container = $('shop-content');
+  if (!container) return;
+  
+  container.innerHTML = '';
   const list = ITEMS_DB[tab] || [];
+  
   list.forEach(item => {
     const canBuy = state.kibble >= item.cost;
     const div = document.createElement('div');
@@ -142,6 +165,8 @@ function renderShop(tab) {
 
 function buyItem(id, type) {
   const list = ITEMS_DB[type];
+  if (!list) return;
+  
   const item = list.find(i => i.id === id);
   if (!item || state.kibble < item.cost) return;
   
@@ -153,7 +178,7 @@ function buyItem(id, type) {
     state.boost = { mult: item.mult, end: Date.now() + item.dur * 1000 };
   } else if (type === 'cases') {
     state.stats.cases++;
-    openCase(type === 'cases' && id === 'c2');
+    openCase(id === 'c2');
   } else if (type === 'furniture') {
     addToInventory(item.id, 1);
   }
@@ -168,7 +193,6 @@ function openCase(isRare) {
   let reward = '';
   
   if (isRare) {
-    // Редкий кейс - лучшие шансы
     if (roll < 0.25) {
       const amount = Math.floor(rand(2000, 5000));
       state.kibble += amount;
@@ -190,7 +214,6 @@ function openCase(isRare) {
       reward = `🛋️ ${f.name} (x${f.mult})`;
     }
   } else {
-    // Обычный кейс - сложнее
     if (roll < 0.50) {
       const amount = Math.floor(rand(200, 800));
       state.kibble += amount;
@@ -223,20 +246,26 @@ function openCase(isRare) {
 // === ИНВЕНТАРЬ ===
 function addToInventory(id, count) {
   const existing = state.inventory.find(i => i.id === id);
-  if (existing) existing.count += count;
-  else state.inventory.push({ id, count, equipped: false });
+  if (existing) {
+    existing.count += count;
+  } else {
+    state.inventory.push({ id, count, equipped: false });
+  }
 }
 
 function renderInventory() {
   const slotIds = ['mat', 'toy1', 'toy2', 'decor1', 'decor2', 'decor3'];
   slotIds.forEach(sid => {
     const el = $(`slot-${sid}`);
+    if (!el) return;
     const itemId = state.slots[sid];
     el.className = `slot ${itemId ? 'filled' : ''}`;
     el.textContent = itemId ? '✅' : '';
   });
 
   const listEl = $('inv-list');
+  if (!listEl) return;
+  
   listEl.innerHTML = '';
   if (state.inventory.length === 0) {
     listEl.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">Пусто. Купите что-нибудь в магазине!</p>';
@@ -270,15 +299,25 @@ function equipItem(id) {
   const item = ITEMS_DB.furniture.find(i => i.id === id);
   if (!item) return;
   
-  const slotKey = item.slot === 'mat' ? 'mat' : 
-                  item.slot === 'toy' ? (state.slots.toy1 ? (state.slots.toy2 ? null : 'toy2') : 'toy1') :
-                  (state.slots.decor1 ? (state.slots.decor2 ? (state.slots.decor3 ? null : 'decor3') : 'decor2') : 'decor1');
-                  
+  let slotKey = null;
+  
+  if (item.slot === 'mat') {
+    if (!state.slots.mat) slotKey = 'mat';
+  } else if (item.slot === 'toy') {
+    if (!state.slots.toy1) slotKey = 'toy1';
+    else if (!state.slots.toy2) slotKey = 'toy2';
+  } else if (item.slot === 'decor') {
+    if (!state.slots.decor1) slotKey = 'decor1';
+    else if (!state.slots.decor2) slotKey = 'decor2';
+    else if (!state.slots.decor3) slotKey = 'decor3';
+  }
+  
   if (!slotKey) {
     alert('Нет свободных слотов для этого предмета!');
     return;
   }
   
+  // Снять если уже надето
   Object.keys(state.slots).forEach(k => {
     if (state.slots[k] === id) state.slots[k] = null;
   });
@@ -299,6 +338,8 @@ function unequipItem(id) {
 // === СТАТИСТИКА ===
 function renderStats() {
   const list = $('stats-list');
+  if (!list) return;
+  
   list.innerHTML = `
     <li><span>Всего кликов</span> <b>${fmt(state.stats.clicks)}</b></li>
     <li><span>Всего заработано</span> <b>${fmt(state.stats.earned)} 🦴</b></li>
@@ -310,53 +351,119 @@ function renderStats() {
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
-window.addEventListener('load', () => {
-  if (window.vkBridge) window.vkBridge.send('VKWebAppInit').catch(() => {});
+function initGame() {
+  console.log('Initializing game...');
+  
+  // VK Bridge
+  if (window.vkBridge) {
+    window.vkBridge.send('VKWebAppInit').catch(() => {});
+  }
+  
+  // Загрузка
   load();
   updateUI();
   
-  $('click-zone').addEventListener('click', (e) => {
-    const val = getClickValue();
-    state.kibble += val;
-    state.stats.clicks++;
-    state.stats.earned += val;
+  // Клик по мопсу
+  const clickZone = $('click-zone');
+  if (clickZone) {
+    clickZone.addEventListener('click', (e) => {
+      e.preventDefault();
+      const val = getClickValue();
+      state.kibble += val;
+      state.stats.clicks++;
+      state.stats.earned += val;
+      
+      // Плавающий текст
+      const float = document.createElement('div');
+      float.className = 'float-text';
+      float.textContent = `+${fmt(val)}`;
+      const rect = clickZone.getBoundingClientRect();
+      float.style.left = `${e.clientX - rect.left - 20}px`;
+      float.style.top = `${e.clientY - rect.top - 20}px`;
+      
+      const floatContainer = $('float-texts');
+      if (floatContainer) {
+        floatContainer.appendChild(float);
+        setTimeout(() => float.remove(), 800);
+      }
+      
+      updateUI();
+      save();
+    });
     
-    const float = document.createElement('div');
-    float.className = 'float-text';
-    float.textContent = `+${fmt(val)}`;
-    const rect = $('click-zone').getBoundingClientRect();
-    float.style.left = `${e.clientX - rect.left - 20}px`;
-    float.style.top = `${e.clientY - rect.top - 20}px`;
-    $('float-texts').appendChild(float);
-    setTimeout(() => float.remove(), 800);
-    
-    updateUI();
-    save();
-  });
-
+    // Предотвращение двойного тапа на мобильных
+    clickZone.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      clickZone.click();
+    }, { passive: false });
+  }
+  
+  // Кнопки меню
   document.querySelectorAll('[data-modal]').forEach(btn => {
-    btn.addEventListener('click', () => showModal(`modal-${btn.dataset.modal}`));
+    btn.addEventListener('click', () => {
+      const modalId = `modal-${btn.dataset.modal}`;
+      showModal(modalId);
+    });
   });
-  document.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', closeModal));
-  $('overlay').addEventListener('click', closeModal);
-
+  
+  // Закрытие модалок
+  document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', closeModal);
+  });
+  
+  const overlay = $('overlay');
+  if (overlay) {
+    overlay.addEventListener('click', closeModal);
+  }
+  
+  // Табы магазина
   document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => renderShop(tab.dataset.tab));
+    tab.addEventListener('click', () => {
+      renderShop(tab.dataset.tab);
+    });
   });
-
-  $('shop-content').addEventListener('click', (e) => {
-    const btn = e.target.closest('.buy-btn');
-    if (btn) buyItem(btn.dataset.id, btn.dataset.type);
-  });
-
-  $('inv-list').addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    if (btn.classList.contains('unequip')) unequipItem(btn.dataset.id);
-    else equipItem(btn.dataset.id);
-  });
-
+  
+  // Покупки в магазине
+  const shopContent = $('shop-content');
+  if (shopContent) {
+    shopContent.addEventListener('click', (e) => {
+      const btn = e.target.closest('.buy-btn');
+      if (btn && !btn.disabled) {
+        buyItem(btn.dataset.id, btn.dataset.type);
+      }
+    });
+  }
+  
+  // Инвентарь
+  const invList = $('inv-list');
+  if (invList) {
+    invList.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      if (btn.classList.contains('unequip')) {
+        unequipItem(btn.dataset.id);
+      } else {
+        equipItem(btn.dataset.id);
+      }
+    });
+  }
+  
+  // Таймер буста
   setInterval(() => {
-    if (state.boost.end > Date.now()) updateUI();
+    if (state.boost.end > Date.now()) {
+      updateUI();
+    }
   }, 1000);
-});
+  
+  // Автосохранение
+  setInterval(save, 10000);
+  
+  console.log('Game initialized!');
+}
+
+// Запуск когда страница загрузится
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGame);
+} else {
+  initGame();
+}
