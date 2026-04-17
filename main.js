@@ -1,63 +1,71 @@
-body {
-    font-family: sans-serif;
-    background-color: #f0f2f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    user-select: none; /* Чтобы текст не выделялся при кликах */
+// Ждем, пока загрузится VK Bridge
+window.onload = function() {
+    // Инициализация ВК
+    if (window.vkBridge) {
+        window.vkBridge.send("VKWebAppInit");
+    }
+    
+    startGame();
+};
+
+let kibble = 0;
+let clickPower = 1;
+let upgradeCost = 15;
+
+const counterEl = document.getElementById('kibble-counter');
+const clickBtn = document.getElementById('click-btn');
+const upgradeBtn = document.getElementById('upgrade-btn');
+
+function startGame() {
+    // Загружаем сохранение (если есть)
+    const savedData = localStorage.getItem('pugSave');
+    if (savedData) {
+        const data = JSON.parse(savedData);
+        kibble = data.kibble;
+        clickPower = data.clickPower;
+        upgradeCost = data.upgradeCost;
+    }
+    
+    updateUI();
 }
 
-.game-container {
-    text-align: center;
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 90%;
-    max-width: 400px;
+// Обработка клика по мопсу
+clickBtn.addEventListener('click', () => {
+    kibble += clickPower;
+    updateUI();
+    saveGame();
+});
+
+// Обработка покупки улучшения
+upgradeBtn.addEventListener('click', () => {
+    if (kibble >= upgradeCost) {
+        kibble -= upgradeCost;
+        clickPower++; // Увеличиваем силу клика
+        upgradeCost = Math.floor(upgradeCost * 1.5); // Увеличиваем цену
+        updateUI();
+        saveGame();
+    }
+});
+
+// Обновление экрана
+function updateUI() {
+    counterEl.textContent = `${kibble} 🦴`;
+    upgradeBtn.textContent = `Купить миску (Цена: ${upgradeCost} 🦴)`;
+    
+    // Если денег не хватает, делаем кнопку серой
+    if (kibble < upgradeCost) {
+        upgradeBtn.disabled = true;
+    } else {
+        upgradeBtn.disabled = false;
+    }
 }
 
-h1 {
-    color: #333;
-    margin-bottom: 10px;
-}
-
-#kibble-counter {
-    font-size: 32px;
-    font-weight: bold;
-    color: #d35400;
-    margin-bottom: 20px;
-}
-
-.pug-btn {
-    background-color: #ff9f43;
-    color: white;
-    border: none;
-    padding: 40px;
-    font-size: 24px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: transform 0.1s;
-    margin-bottom: 20px;
-}
-
-.pug-btn:active {
-    transform: scale(0.95); /* Эффект нажатия */
-}
-
-#upgrade-btn {
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#upgrade-btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+// Сохранение прогресса в браузер
+function saveGame() {
+    const data = {
+        kibble: kibble,
+        clickPower: clickPower,
+        upgradeCost: upgradeCost
+    };
+    localStorage.setItem('pugSave', JSON.stringify(data));
 }
