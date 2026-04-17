@@ -13,25 +13,38 @@
     <div class="floor"></div>
     
     <div class="app">
-      <!-- Верхняя панель -->
       <header>
         <div class="currency">🦴 <span id="ui-kibble">0</span></div>
         <div class="mult-badge" id="ui-mult">x1.00</div>
       </header>
 
-      <!-- Игровая зона -->
       <main class="game">
         <div class="boost-bar" id="ui-boost" style="display:none">⚡ <span id="ui-boost-time"></span></div>
         
-        <!-- КЛИКАБЕЛЬНАЯ ЗОНА -->
-        <div id="click-zone" class="click-zone">
-          <img src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="🐶" class="pug-img">
+        <!-- КОМНАТА С ПРЕДМЕТАМИ -->
+        <div class="room-scene">
+          <!-- Декорации (появляются при экипировке) -->
+          <div id="dec-window" class="deco deco-window" style="display:none">🪟</div>
+          <div id="dec-picture" class="deco deco-picture" style="display:none">🖼️</div>
+          <div id="dec-wardrobe" class="deco deco-wardrobe" style="display:none">🚪</div>
+          
+          <!-- Игрушки -->
+          <div id="toy-ball" class="toy toy-ball" style="display:none">⚽</div>
+          <div id="toy-bone" class="toy toy-bone" style="display:none">🦴</div>
+          
+          <!-- Коврик под мопсом -->
+          <div id="mat-rug" class="mat" style="display:none"></div>
+          
+          <!-- МОПС (кликабельная зона) -->
+          <div id="click-zone" class="click-zone">
+            <!-- 📍 ЗДЕСЬ МЕНЯТЬ КАРТИНКУ МОПСА -->
+            <img src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="🐶" class="pug-img">
+          </div>
         </div>
         
         <div id="float-container"></div>
       </main>
 
-      <!-- Нижнее меню -->
       <nav class="bottom-nav">
         <button data-open="shop">🛒</button>
         <button data-open="inventory">🎒</button>
@@ -40,17 +53,16 @@
     </div>
   </div>
 
-  <!-- Оверлей и модальные окна -->
   <div id="overlay"></div>
 
   <!-- Магазин -->
   <div id="modal-shop" class="modal">
     <div class="modal-head"><h3>Магазин</h3><button class="close">&times;</button></div>
     <div class="tabs">
-      <button class="tab active" data-tab="up">⚡</button>
-      <button class="tab" data-tab="food">🍖</button>
-      <button class="tab" data-tab="case">📦</button>
-      <button class="tab" data-tab="furn">🛋️</button>
+      <button class="tab active" data-tab="up">⚡ Прокачка</button>
+      <button class="tab" data-tab="food">🍖 Еда</button>
+      <button class="tab" data-tab="case">📦 Кейсы</button>
+      <button class="tab" data-tab="furn">🛋️ Мебель</button>
     </div>
     <div id="shop-list"></div>
   </div>
@@ -58,13 +70,17 @@
   <!-- Инвентарь -->
   <div id="modal-inventory" class="modal">
     <div class="modal-head"><h3>Инвентарь</h3><button class="close">&times;</button></div>
-    <div id="inv-slots"></div>
+    <div class="slots-info">
+      <div class="slot-box"><span>🛏️</span> <span id="slot-mat">0/1</span></div>
+      <div class="slot-box"><span>🎾</span> <span id="slot-toy">0/2</span></div>
+      <div class="slot-box"><span>🖼️</span> <span id="slot-dec">0/3</span></div>
+    </div>
     <div id="inv-items"></div>
   </div>
 
   <!-- Статистика -->
   <div id="modal-stats" class="modal">
-    <div class="modal-head"><h3>Стата</h3><button class="close">&times;</button></div>
+    <div class="modal-head"><h3>Статистика</h3><button class="close">&times;</button></div>
     <ul id="stats-list"></ul>
   </div>
 
