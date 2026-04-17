@@ -252,4 +252,80 @@ function equipItem(id) {
   save();
 }
 
-function unequipItem(id)
+function unequipItem(id) {
+  Object.keys(state.slots).forEach(k => {
+    if (state.slots[k] === id) state.slots[k] = null;
+  });
+  updateUI();
+  save();
+}
+
+// === СТАТИСТИКА ===
+function renderStats() {
+  const list = $('stats-list');
+  list.innerHTML = `
+    <li><span>Всего кликов</span> <b>${fmt(state.stats.clicks)}</b></li>
+    <li><span>Всего заработано</span> <b>${fmt(state.stats.earned)} 🦴</b></li>
+    <li><span>Кейсов открыто</span> <b>${state.stats.cases}</b></li>
+    <li><span>Сила клика (база)</span> <b>${state.clickBase}</b></li>
+    <li><span>Постоянный множитель</span> <b>x${state.permMult.toFixed(2)}</b></li>
+  `;
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+window.addEventListener('load', () => {
+  if (window.vkBridge) window.vkBridge.send('VKWebAppInit').catch(() => {});
+  load();
+  updateUI();
+  
+  // Клик
+  $('click-zone').addEventListener('click', (e) => {
+    const val = getClickValue();
+    state.kibble += val;
+    state.stats.clicks++;
+    state.stats.earned += val;
+    
+    // Текст
+    const float = document.createElement('div');
+    float.className = 'float-text';
+    float.textContent = `+${fmt(val)}`;
+    float.style.left = `${e.clientX - $('float-texts').getBoundingClientRect().left - 20}px`;
+    float.style.top = `${e.clientY - $('float-texts').getBoundingClientRect().top - 20}px`;
+    $('float-texts').appendChild(float);
+    setTimeout(() => float.remove(), 800);
+    
+    updateUI();
+    save();
+  });
+
+  // Модальные окна
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => showModal(`modal-${btn.dataset.modal}`));
+  });
+  document.querySelectorAll('.close-btn').forEach(btn => btn.addEventListener('click', closeModal));
+  $('overlay').addEventListener('click', closeModal);
+
+  // Табы магазина
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => renderShop(tab.dataset.tab));
+  });
+
+  // Покупки (делегирование)
+  $('shop-content').addEventListener('click', (e) => {
+    const btn = e.target.closest('.buy-btn');
+    if (btn) buyItem(btn.dataset.id, btn.dataset.type);
+  });
+
+  // Инвентарь (делегирование)
+  $('inv-list').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    if (btn.classList.contains('unequip')) unequipItem(btn.dataset.id);
+    else equipItem(btn.dataset.id);
+  });
+
+  // Таймер буста
+  setInterval(() => {
+    if (state.boost.end > Date.now()) updateUI();
+  }, 1000);
+});
