@@ -1,1 +1,32 @@
-Привет, ВК!
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мопсы Кликер</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Подключаем VK Bridge через CDN (чтобы работало без установки Node.js) -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🐶 Мопс Кликер</h1>
+        
+        <div class="stats">
+            <div id="kibble-counter">0 🦴</div>
+        </div>
+
+        <button id="click-btn" class="pug-btn">
+             ТАПАЙ
+        </button>
+
+        <div class="upgrades">
+            <button id="upgrade-btn">
+                Купить миску (Цена: 15 🦴)
+            </button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
