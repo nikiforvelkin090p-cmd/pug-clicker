@@ -89,19 +89,21 @@ function getClickValue() {
   return state.clickBase * state.permMult * tempMult * furnMult;
 }
 
-// === ИНТЕРФЕЙС ===
+// === ИНТЕРФЕЙС (БЕЗОПАСНЫЙ) ===
 function updateUI() {
-  const kibbleEl = $('ui-kibble');
-  const multEl = $('ui-mult');
+  // Безопасное обновление текста
+  const setText = (id, text) => {
+    const el = $(id);
+    if (el) el.textContent = text;
+  };
+  
+  setText('ui-kibble', fmt(state.kibble));
+  
+  const currentMult = state.permMult * getFurnitureMult() * (state.boost.end > Date.now() ? state.boost.mult : 1);
+  setText('ui-mult', `x${currentMult.toFixed(2)}`);
+  
   const boostEl = $('ui-boost');
   const boostTimeEl = $('ui-boost-time');
-  
-  if (kibbleEl) kibbleEl.textContent = fmt(state.kibble);
-  if (multEl) {
-    const currentMult = state.permMult * getFurnitureMult() * (state.boost.end > Date.now() ? state.boost.mult : 1);
-    multEl.textContent = `x${currentMult.toFixed(2)}`;
-  }
-  
   if (boostEl && boostTimeEl) {
     const boostActive = state.boost.end > Date.now();
     boostEl.style.display = boostActive ? 'block' : 'none';
@@ -119,8 +121,10 @@ function showModal(modalId) {
   const overlay = $('overlay');
   const modal = $(modalId);
   if (overlay) overlay.style.display = 'block';
-  if (modal) modal.classList.add('open');
-  if (modalId === 'modal-shop') renderShop('upgrades');
+  if (modal) {
+    modal.classList.add('open');
+    if (modalId === 'modal-shop') renderShop('upgrades');
+  }
   updateUI();
 }
 
@@ -350,23 +354,23 @@ function renderStats() {
   `;
 }
 
-// === ИНИЦИАЛИЗАЦИЯ ===
+// === ИНИЦИАЛИЗАЦИЯ (ТОЛЬКО ПОСЛЕ ЗАГРУЗКИ DOM) ===
 function initGame() {
-  console.log('Initializing game...');
+  console.log('🎮 Game starting...');
   
   // VK Bridge
   if (window.vkBridge) {
     window.vkBridge.send('VKWebAppInit').catch(() => {});
   }
   
-  // Загрузка
+  // Загрузка данных
   load();
   updateUI();
   
   // Клик по мопсу
   const clickZone = $('click-zone');
   if (clickZone) {
-    clickZone.addEventListener('click', (e) => {
+    const handleClick = (e) => {
       e.preventDefault();
       const val = getClickValue();
       state.kibble += val;
@@ -389,12 +393,12 @@ function initGame() {
       
       updateUI();
       save();
-    });
+    };
     
-    // Предотвращение двойного тапа на мобильных
+    clickZone.addEventListener('click', handleClick);
     clickZone.addEventListener('touchstart', (e) => {
       e.preventDefault();
-      clickZone.click();
+      handleClick(e);
     }, { passive: false });
   }
   
@@ -458,12 +462,13 @@ function initGame() {
   // Автосохранение
   setInterval(save, 10000);
   
-  console.log('Game initialized!');
+  console.log('✅ Game ready!');
 }
 
-// Запуск когда страница загрузится
+// Запускаем только когда весь HTML загрузился
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initGame);
 } else {
+  // Если уже загрузился — запускаем сразу
   initGame();
 }
