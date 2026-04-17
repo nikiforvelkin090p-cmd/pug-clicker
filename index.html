@@ -21,7 +21,7 @@
       <main class="game">
         <div class="boost-bar" id="ui-boost" style="display:none">⚡ БУСТ АКТИВЕН <span id="ui-boost-time">00:00</span></div>
         <div class="click-zone" id="click-zone">
-          <img id="pug-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Pug_dog_2009.jpg/400px-Pug_dog_2009.jpg" alt="Мопс">
+          <img id="pug-img" src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="Мопс" class="pug-character">
         </div>
         <div id="float-texts"></div>
       </main>
@@ -29,13 +29,11 @@
       <nav class="bottom-nav">
         <button data-modal="shop">🛒 Магазин</button>
         <button data-modal="inventory">🎒 Инвентарь</button>
-        <button data-modal="stats"> Стата</button>
-        <button data-modal="code">🔑 Код</button>
+        <button data-modal="stats">📊 Стата</button>
       </nav>
     </div>
   </div>
 
-  <!-- Оверлей -->
   <div id="overlay" class="overlay"></div>
 
   <!-- Магазин -->
@@ -47,8 +45,8 @@
     <div class="tabs">
       <button class="tab active" data-tab="upgrades">⚡ Клик</button>
       <button class="tab" data-tab="food">🍖 Еда</button>
-      <button class="tab" data-tab="cases"> Кейсы</button>
-      <button class="tab" data-tab="furniture">️ Мебель</button>
+      <button class="tab" data-tab="cases">📦 Кейсы</button>
+      <button class="tab" data-tab="furniture">🛋️ Мебель</button>
     </div>
     <div class="tab-content" id="shop-content"></div>
   </div>
@@ -86,19 +84,6 @@
       <button class="close-btn">&times;</button>
     </div>
     <ul class="stats-list" id="stats-list"></ul>
-  </div>
-
-  <!-- Код мопса -->
-  <div id="modal-code" class="modal">
-    <div class="modal-header">
-      <h2>Код мопса</h2>
-      <button class="close-btn">&times;</button>
-    </div>
-    <div class="code-box">
-      <p>Твой уникальный код:</p>
-      <code id="pug-code">LOADING...</code>
-      <small>Используй его для обмена с друзьями (демо-режим)</small>
-    </div>
   </div>
 
   <script src="main.js"></script>
