@@ -13,77 +13,59 @@
     <div class="floor"></div>
     
     <div class="app">
+      <!-- Верхняя панель -->
       <header>
         <div class="currency">🦴 <span id="ui-kibble">0</span></div>
         <div class="mult-badge" id="ui-mult">x1.00</div>
       </header>
 
+      <!-- Игровая зона -->
       <main class="game">
-        <div class="boost-bar" id="ui-boost" style="display:none">⚡ БУСТ АКТИВЕН <span id="ui-boost-time">00:00</span></div>
-        <div class="click-zone" id="click-zone">
-          <img id="pug-img" src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="Мопс" class="pug-character">
+        <div class="boost-bar" id="ui-boost" style="display:none">⚡ <span id="ui-boost-time"></span></div>
+        
+        <!-- КЛИКАБЕЛЬНАЯ ЗОНА -->
+        <div id="click-zone" class="click-zone">
+          <img src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="🐶" class="pug-img">
         </div>
-        <div id="float-texts"></div>
+        
+        <div id="float-container"></div>
       </main>
 
+      <!-- Нижнее меню -->
       <nav class="bottom-nav">
-        <button data-modal="shop">🛒 Магазин</button>
-        <button data-modal="inventory">🎒 Инвентарь</button>
-        <button data-modal="stats">📊 Стата</button>
+        <button data-open="shop">🛒</button>
+        <button data-open="inventory">🎒</button>
+        <button data-open="stats">📊</button>
       </nav>
     </div>
   </div>
 
-  <div id="overlay" class="overlay"></div>
+  <!-- Оверлей и модальные окна -->
+  <div id="overlay"></div>
 
   <!-- Магазин -->
   <div id="modal-shop" class="modal">
-    <div class="modal-header">
-      <h2>Магазин</h2>
-      <button class="close-btn">&times;</button>
-    </div>
+    <div class="modal-head"><h3>Магазин</h3><button class="close">&times;</button></div>
     <div class="tabs">
-      <button class="tab active" data-tab="upgrades">⚡ Клик</button>
-      <button class="tab" data-tab="food">🍖 Еда</button>
-      <button class="tab" data-tab="cases">📦 Кейсы</button>
-      <button class="tab" data-tab="furniture">🛋️ Мебель</button>
+      <button class="tab active" data-tab="up">⚡</button>
+      <button class="tab" data-tab="food">🍖</button>
+      <button class="tab" data-tab="case">📦</button>
+      <button class="tab" data-tab="furn">🛋️</button>
     </div>
-    <div class="tab-content" id="shop-content"></div>
+    <div id="shop-list"></div>
   </div>
 
   <!-- Инвентарь -->
   <div id="modal-inventory" class="modal">
-    <div class="modal-header">
-      <h2>Инвентарь</h2>
-      <button class="close-btn">&times;</button>
-    </div>
-    <div class="inv-slots">
-      <div class="slot-group">
-        <h3>Подстилка (1/1)</h3>
-        <div id="slot-mat" class="slot"></div>
-      </div>
-      <div class="slot-group">
-        <h3>Игрушки (0/2)</h3>
-        <div id="slot-toy1" class="slot"></div>
-        <div id="slot-toy2" class="slot"></div>
-      </div>
-      <div class="slot-group">
-        <h3>Декор (0/3)</h3>
-        <div id="slot-decor1" class="slot"></div>
-        <div id="slot-decor2" class="slot"></div>
-        <div id="slot-decor3" class="slot"></div>
-      </div>
-    </div>
-    <div class="inv-list" id="inv-list"></div>
+    <div class="modal-head"><h3>Инвентарь</h3><button class="close">&times;</button></div>
+    <div id="inv-slots"></div>
+    <div id="inv-items"></div>
   </div>
 
   <!-- Статистика -->
   <div id="modal-stats" class="modal">
-    <div class="modal-header">
-      <h2>Статистика</h2>
-      <button class="close-btn">&times;</button>
-    </div>
-    <ul class="stats-list" id="stats-list"></ul>
+    <div class="modal-head"><h3>Стата</h3><button class="close">&times;</button></div>
+    <ul id="stats-list"></ul>
   </div>
 
   <script src="main.js"></script>
