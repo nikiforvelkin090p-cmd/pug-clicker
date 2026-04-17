@@ -1,32 +1,106 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мопсы Кликер</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Подключаем VK Bridge через CDN (чтобы работало без установки Node.js) -->
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Мопс Кликер</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
 </head>
 <body>
-    <div class="game-container">
-        <h1>🐶 Мопс Кликер</h1>
-        
-        <div class="stats">
-            <div id="kibble-counter">0 🦴</div>
-        </div>
+  <div class="room">
+    <div class="wall"></div>
+    <div class="floor"></div>
+    
+    <div class="app">
+      <header>
+        <div class="currency">🦴 <span id="ui-kibble">0</span></div>
+        <div class="mult-badge" id="ui-mult">x1.00</div>
+      </header>
 
-        <button id="click-btn" class="pug-btn">
-             ТАПАЙ
-        </button>
-
-        <div class="upgrades">
-            <button id="upgrade-btn">
-                Купить миску (Цена: 15 🦴)
-            </button>
+      <main class="game">
+        <div class="boost-bar" id="ui-boost" style="display:none">⚡ БУСТ АКТИВЕН <span id="ui-boost-time">00:00</span></div>
+        <div class="click-zone" id="click-zone">
+          <img id="pug-img" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Pug_dog_2009.jpg/400px-Pug_dog_2009.jpg" alt="Мопс">
         </div>
+        <div id="float-texts"></div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button data-modal="shop">🛒 Магазин</button>
+        <button data-modal="inventory">🎒 Инвентарь</button>
+        <button data-modal="stats"> Стата</button>
+        <button data-modal="code">🔑 Код</button>
+      </nav>
     </div>
+  </div>
 
-    <script src="main.js"></script>
+  <!-- Оверлей -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Магазин -->
+  <div id="modal-shop" class="modal">
+    <div class="modal-header">
+      <h2>Магазин</h2>
+      <button class="close-btn">&times;</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-tab="upgrades">⚡ Клик</button>
+      <button class="tab" data-tab="food">🍖 Еда</button>
+      <button class="tab" data-tab="cases"> Кейсы</button>
+      <button class="tab" data-tab="furniture">️ Мебель</button>
+    </div>
+    <div class="tab-content" id="shop-content"></div>
+  </div>
+
+  <!-- Инвентарь -->
+  <div id="modal-inventory" class="modal">
+    <div class="modal-header">
+      <h2>Инвентарь</h2>
+      <button class="close-btn">&times;</button>
+    </div>
+    <div class="inv-slots">
+      <div class="slot-group">
+        <h3>Подстилка (1/1)</h3>
+        <div id="slot-mat" class="slot"></div>
+      </div>
+      <div class="slot-group">
+        <h3>Игрушки (0/2)</h3>
+        <div id="slot-toy1" class="slot"></div>
+        <div id="slot-toy2" class="slot"></div>
+      </div>
+      <div class="slot-group">
+        <h3>Декор (0/3)</h3>
+        <div id="slot-decor1" class="slot"></div>
+        <div id="slot-decor2" class="slot"></div>
+        <div id="slot-decor3" class="slot"></div>
+      </div>
+    </div>
+    <div class="inv-list" id="inv-list"></div>
+  </div>
+
+  <!-- Статистика -->
+  <div id="modal-stats" class="modal">
+    <div class="modal-header">
+      <h2>Статистика</h2>
+      <button class="close-btn">&times;</button>
+    </div>
+    <ul class="stats-list" id="stats-list"></ul>
+  </div>
+
+  <!-- Код мопса -->
+  <div id="modal-code" class="modal">
+    <div class="modal-header">
+      <h2>Код мопса</h2>
+      <button class="close-btn">&times;</button>
+    </div>
+    <div class="code-box">
+      <p>Твой уникальный код:</p>
+      <code id="pug-code">LOADING...</code>
+      <small>Используй его для обмена с друзьями (демо-режим)</small>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
 </body>
 </html>
