@@ -21,24 +21,24 @@
       <main class="game">
         <div class="boost-bar" id="ui-boost" style="display:none">⚡ <span id="ui-boost-time"></span></div>
         
-        <!-- КОМНАТА С ПРЕДМЕТАМИ -->
-        <div class="room-scene">
-          <!-- Декорации (появляются при экипировке) -->
-          <div id="dec-window" class="deco deco-window" style="display:none">🪟</div>
-          <div id="dec-picture" class="deco deco-picture" style="display:none">🖼️</div>
-          <div id="dec-wardrobe" class="deco deco-wardrobe" style="display:none">🚪</div>
+        <!-- СЦЕНА КОМНАТЫ -->
+        <div class="scene">
+          <!-- Декор (Задний план) -->
+          <div id="dec-wardrobe" class="deco" style="display:none; z-index:1;">🚪</div> <!-- Шкаф слева -->
+          <div id="dec-window" class="deco" style="display:none; z-index:1;">🪟</div>   <!-- Окно справа -->
+          <div id="dec-lamp" class="deco" style="display:none; z-index:1;">💡</div>    <!-- Лампа сверху слева -->
           
-          <!-- Игрушки -->
-          <div id="toy-ball" class="toy toy-ball" style="display:none">⚽</div>
-          <div id="toy-bone" class="toy toy-bone" style="display:none">🦴</div>
+          <!-- Коврик (Пол) -->
+          <div id="mat-rug" class="rug" style="display:none; z-index:2;"></div>
+
+          <!-- Игрушки (Средний план) -->
+          <div id="toy-ball" class="toy" style="display:none; z-index:3;">⚽</div>
+          <div id="toy-bone" class="toy" style="display:none; z-index:3;">🦴</div>
           
-          <!-- Коврик под мопсом -->
-          <div id="mat-rug" class="mat" style="display:none"></div>
-          
-          <!-- МОПС (кликабельная зона) -->
-          <div id="click-zone" class="click-zone">
-            <!-- 📍 ЗДЕСЬ МЕНЯТЬ КАРТИНКУ МОПСА -->
-            <img src="https://png.pngtree.com/png-vector/20250324/ourmid/pngtree-pug-puppy-sitting-isolated-on-transparent-background-png-image_15855808.png" alt="🐶" class="pug-img">
+          <!-- Мопс (Передний план, Центр) -->
+          <div id="click-zone" class="pug-container" style="z-index:10;">
+            <!-- 📍 Ссылка на картинку мопса -->
+            <img src="https://cdn-icons-png.flaticon.com/512/3175/3175661.png" alt="Мопс" class="pug-img">
           </div>
         </div>
         
@@ -53,9 +53,9 @@
     </div>
   </div>
 
+  <!-- МЕНЮ -->
   <div id="overlay"></div>
 
-  <!-- Магазин -->
   <div id="modal-shop" class="modal">
     <div class="modal-head"><h3>Магазин</h3><button class="close">&times;</button></div>
     <div class="tabs">
@@ -67,20 +67,18 @@
     <div id="shop-list"></div>
   </div>
 
-  <!-- Инвентарь -->
   <div id="modal-inventory" class="modal">
     <div class="modal-head"><h3>Инвентарь</h3><button class="close">&times;</button></div>
     <div class="slots-info">
-      <div class="slot-box"><span>🛏️</span> <span id="slot-mat">0/1</span></div>
-      <div class="slot-box"><span>🎾</span> <span id="slot-toy">0/2</span></div>
-      <div class="slot-box"><span>🖼️</span> <span id="slot-dec">0/3</span></div>
+      <div class="slot-box">🛏️ <span id="slot-mat">0/1</span></div>
+      <div class="slot-box">🧸 <span id="slot-toy">0/2</span></div>
+      <div class="slot-box">🖼️ <span id="slot-dec">0/3</span></div>
     </div>
     <div id="inv-items"></div>
   </div>
 
-  <!-- Статистика -->
   <div id="modal-stats" class="modal">
-    <div class="modal-head"><h3>Статистика</h3><button class="close">&times;</button></div>
+    <div class="modal-head"><h3>Стата</h3><button class="close">&times;</button></div>
     <ul id="stats-list"></ul>
   </div>
 
