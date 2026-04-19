@@ -23,7 +23,7 @@ header{padding:12px;background:#fff;border-radius:0 0 20px 20px;display:flex;jus
   filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.3));
   transition: all 0.5s;
 }
-#dec-wardrobe { left: -50px; top: 10px; font-size: 600px; } /* Шкаф слева большой */
+#dec-wardrobe { left: -1000px; top: 0px; font-size: 600px; } /* Шкаф слева большой */
 #dec-window   { right: -10px; top: 10px; font-size: 90px; } /* Окно справа большое */
 #dec-lamp     { left: 30px; top: -10px; font-size: 60px; }  /* Лампа висит сверху */
 
